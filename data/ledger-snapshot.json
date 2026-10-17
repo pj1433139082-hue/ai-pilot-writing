@@ -1,0 +1,119 @@
+{
+  "updated": "2026-10-17",
+  "written": [
+    {
+      "date": "2026-10-09",
+      "title": "多 Agent 跑不顺，缺的不是 Agent，是任务状态外置",
+      "source": "**一手核查**（本机收工流水线实跑记录 ＋ 本机 agent 运行时会话持久化源码 ＋ 水务项目门禁 JSON 与 AGENTS/CONTEXT/HANDOFF ＋ Wanman 主干源码 `d3a8138d`）；初稿被用户指出「没实际探查过对应项目」，遂整篇重写，后又按项目实地证据补正",
+      "status": "**published** 2026-10-09 16:23（补正版覆盖发布）",
+      "file": "`2026-10-09-multi-agent-sessionstore.md` · [钉钉原文](https://alidocs.dingtalk.com/i/nodes/o14dA3GK8g5NxQ4AFEb23rvqV9ekBD76)",
+      "feedback": "—（未记）"
+    },
+    {
+      "date": "2026-10-09",
+      "title": "AI 输出的工艺数据核验三步法",
+      "source": "领航团文档（6月《数据判断力》＋ 9月《AI幻觉应对》署名经验）＋ 业务场景（问题1 台账自动化 / 问题2 非技术同事落地 ＋ 环保监测逻辑闭环）",
+      "status": "**ready** 2026-10-11（首发批）",
+      "file": "`2026-10-09-ai-output-data-verify.md`",
+      "feedback": "—"
+    },
+    {
+      "date": "2026-10-07",
+      "title": "把高频 AI 动作沉淀成可复用技能",
+      "source": "业务场景（原则六「沉淀复用，形成能力」＋ 问题1/2/3）＋ 领航团库《AI 工具选用指引》佐证 ＋ 当日热点外部呼应（Personal Agent Protocol / GitHub agent-scale）",
+      "status": "**ready** 2026-10-11（第二批，与 09-30 同堆须隔一篇）",
+      "file": "`2026-10-07-ai-gaopin-dongzuo-chenjian.md`",
+      "feedback": "—"
+    },
+    {
+      "date": "2026-10-05",
+      "title": "本地模型跑文档解析：8GB 显存能撑起什么",
+      "source": "选题池（本地大模型跑文档解析的性价比）＋ 业务场景（RTX 4060 8GB 硬约束 / 问题3 内网数据不出企业）＋ 领航团库佐证 ＋ 当日热点外部呼应",
+      "status": "**ready** 2026-10-11（第二批）",
+      "file": "`2026-10-05-local-model-doc-parse.md`",
+      "feedback": "—"
+    },
+    {
+      "date": "2026-10-06",
+      "title": "AI 智能体的恶意技能包：免批准也能外泄数据",
+      "source": "当日热点（PromptArmor 披露 Databricks Genie 恶意 Skill 数据外泄）＋ 业务场景（问题3 内网数据不出企业 / 问题2 非技术同事用 AI）＋ 领航团库佐证",
+      "status": "**dropped** 2026-10-11 留素材",
+      "file": "`2026-10-06-ai-agent-malicious-skill-risk.md`",
+      "feedback": "—"
+    },
+    {
+      "date": "2026-10-02",
+      "title": "提示词缓存降本：固定前缀放在最前面",
+      "source": "选题池（当日热点 GPT-5.6 缓存定价 + 业务场景 SED 台账/非技术同事 + 领航团库佐证）",
+      "status": "**ready** 2026-10-17（无出处表述已删，统一为官方读命中口径 0.1×）",
+      "file": "`2026-10-02-prompt-caching-cost.md`",
+      "feedback": "—"
+    },
+    {
+      "date": "2026-10-01",
+      "title": "AI 编程助手在内网：代理、权限与数据边界",
+      "source": "选题池（当日热点 + 业务场景 + 领航团库佐证）",
+      "status": "**ready** 2026-10-11（第二批）",
+      "file": "`2026-10-01-ai-coding-agent-intranet.md`",
+      "feedback": "—"
+    },
+    {
+      "date": "2026-09-29",
+      "title": "AI 群聊知识沉淀：从聊天记录到可检索资产",
+      "source": "领航团文档（8月《AI驱动知识由个人隐性经验转化为组织可复用智能》＋ 7月《AI 工具选用指引》）＋ 业务场景（东部智脑钉钉生态运营 / SED 工艺台账 / 非技术同事用 AI）；当日热点作外部呼应",
+      "status": "**ready** 2026-10-17（已核：「对齐失效报告」是站点/报告名、「沙箱逃逸」是其中一起事件，同源无冲突）",
+      "file": "`2026-09-29-ai-chatlog-knowledge-archive.md`",
+      "feedback": "—"
+    },
+    {
+      "date": "2026-09-30",
+      "title": "工艺 AI 指标自动取数：从台账到公式",
+      "source": "业务场景（SED 工艺台账自动化，命中问题1 手工台账自动化）＋ 领航团库（9月《AI幻觉…》/7月《工具选用指引》）佐证 ＋ 当日热点（Codex 云环境 / GPT-6.1 缓存折扣）外部呼应",
+      "status": "**ready** 2026-10-11（首发批）",
+      "file": "`2026-09-30-sed-metric-auto-extraction.md`",
+      "feedback": "—"
+    },
+    {
+      "date": "2026-09-28",
+      "title": "非技术同事用 AI 的三级复核清单",
+      "source": "领航团文档（9月《AI 幻觉、输出偏差如何应对，工作中建立怎样的人工复核校验机制？》）＋ 当日热点（AI 智能体安全事件）＋ 业务场景（问题2：让非技术同事真正用起来 AI）",
+      "status": "**ready** 2026-10-11（首发批）",
+      "file": "`2026-09-28-ai-three-tier-review-checklist.md`",
+      "feedback": "—"
+    },
+    {
+      "date": "2026-09-25",
+      "title": "Excel 里用上 AI：三条路线与一次口径抽检",
+      "source": "领航团文档（7 月《AI 工具选用指引》＋ 8/9 月议题）＋ 当日热点（GitHub Trending）",
+      "status": "**dropped** 2026-10-11 留素材（与 09-28 撞题）",
+      "file": "`2026-09-25-excel-ai-three-routes-and-caliber-check.md`",
+      "feedback": "—"
+    },
+    {
+      "date": "2026-09-23",
+      "title": "多智能体协作办公流程：从派单到验收的一条链路",
+      "source": "用户指定（领航团待写文档《multica智能体协作办公流程-潘杰》）＋ 资料库",
+      "status": "**published** 2026-09-23 17:50",
+      "file": "`2026-09-23-multica-agent-orchestration-workflow.md` · [钉钉原文](https://alidocs.dingtalk.com/i/nodes/gvNG4YZ7JneMAxNgfAAj6XzgV2LD0oRE)",
+      "feedback": "—（未记）"
+    }
+  ],
+  "pool": [
+    {
+      "priority": "中",
+      "title": "univer：可编程表格运行时能不能替 SED 台账取数",
+      "source": "当日信号（2026-09-23 达标，相关度 3）",
+      "angle": "git clone + npm run dev 起本地 demo，把 SED 一张真实台账表头粘进去，验证公式能不能自动取数（约 30–60 分钟）",
+      "claimed_topic": "台账取数",
+      "last_published": "—（同主题尚未发布）"
+    },
+    {
+      "priority": "中",
+      "title": "open-webui：企业内网可自部署的本地模型统一 Web 面板（支",
+      "source": "当日信号（2026-10-13 达标，相关度 2）",
+      "angle": "今天在代理后拉 open-webui 镜像，起一个接本地 Ollama/DeepSeek 的面板，给非技术同事一个不用外网的试用入口",
+      "claimed_topic": "—",
+      "last_published": "—"
+    }
+  ]
+}

@@ -5,10 +5,10 @@ A robust ledger module (`core/ledger.py`) that abstracts interaction with `已�
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** completed
 
-- [ ] Implement `LedgerAdapter.search_duplicate(query, threshold=0.6)` comparing against written and pooled topics using Jaccard/bigram similarity.
-- [ ] Implement `LedgerAdapter.register_draft(title, file_name, author, date)` appending a `**draft** 新建` row to `已写清单.md` and removing claimed topics from `## 选题池`.
-- [ ] Implement offline fallback reading `data/ledger-snapshot.json` when the central vault is unreachable, emitting an explicit fallback notice.
-- [ ] Generate bundled baseline `data/ledger-snapshot.json` from the current vault ledger.
-- [ ] Add unit test suite `tests/test_ledger.py` verifying duplicate warnings, atomic registration, and fallback behavior.
+- [x] Implement `LedgerAdapter.search_duplicate(query, threshold=0.6)` comparing against written and pooled topics using Jaccard/bigram similarity.
+- [x] Implement `LedgerAdapter.register_draft(title, file_name, author, date)` appending a `**draft** 新建` row to `已写清单.md` and removing claimed topics from `## 选题池`.
+- [x] Implement offline fallback reading `data/ledger-snapshot.json` when the central vault is unreachable, emitting an explicit fallback notice.
+- [x] Generate bundled baseline `data/ledger-snapshot.json` from the current vault ledger.
+- [x] Add unit test suite `tests/test_ledger.py` verifying duplicate warnings, atomic registration, and fallback behavior.
