@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 AI 领航团写作脚手架与规范校验工具 (Pilot CLI)
-提供模板新建、AI提示词导出、规范门禁校验与 Obsidian 工作台同步功能。
+提供模板新建、AI提示词导出、规范门禁校验、中央防重台账与 Obsidian 工作台同步功能。
 仅使用 Python 3 标准库，无任何第三方包依赖。
 """
 
@@ -21,10 +21,11 @@ if str(BASE_DIR) not in sys.path:
 from core.linter import PilotLinter
 from core.reporter import Reporter
 from core.renderer import TemplateRenderer
+from core.ledger import LedgerAdapter
+from core.vault_sync import VaultSyncAdapter
 
 TEMPLATES_DIR = BASE_DIR / "templates"
 PROMPTS_DIR = BASE_DIR / "prompts"
-VAULT_TEMPLATE_DIR = Path(r"D:\obsidian_work\cangku\paper_work\工作台\模板")
 
 TEMPLATE_MAP = {
     "business": {
@@ -47,6 +48,7 @@ PROMPT_MAP = {
     "audit": "audit-pilot-article.md"
 }
 
+
 def cmd_new(args):
     """根据体裁从模板创建新草稿"""
     t_type = args.type.lower()
@@ -65,6 +67,21 @@ def cmd_new(args):
     author = args.author.strip() if args.author else "领航团成员"
     title = args.title.strip() if args.title else f"新{tmpl_info['name']}"
 
+    # 1. 查重检测
+    vault_path_arg = getattr(args, "vault_path", None)
+    ledger = LedgerAdapter(vault_path=vault_path_arg)
+    if title:
+        matches = ledger.search_duplicate(title, threshold=0.5)
+        if matches:
+            print("\n" + "=" * 60)
+            print("⚠️  [防重提醒] 发现可能重复或高度相似的历史文章/选题:")
+            for m in matches:
+                src_label = "已写清单" if m["table"] == "written" else "选题池"
+                score_pct = f"{m['score'] * 100:.1f}%"
+                print(f"  • [{src_label}] 相似度: {score_pct:>5s} | 《{m['title']}》")
+            print("=" * 60 + "\n")
+
+    # 2. 确定输出目标路径并检查覆盖
     if args.output:
         dest_path = Path(args.output).resolve()
     else:
@@ -77,31 +94,54 @@ def cmd_new(args):
         print("如需覆盖请加上 --force 参数")
         return 1
 
+    # 3. 读取模板并水化元数据插槽
     with open(tmpl_file, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # 使用声明式模板插槽渲染器水化元数据
     context = {
+        "title": title,
         "date": today_str,
         "slug": slug,
         "author": author,
         "author_name": author,
         "topic": t_type,
-        "title": title,
         "alias_1": f"{today_str}-{slug}",
         "alias_2": title,
     }
-    content = TemplateRenderer.render(content, context)
+    rendered = TemplateRenderer.render(content, context)
 
+    # 4. 写入目标草稿文件
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     with open(dest_path, "w", encoding="utf-8") as f:
-        f.write(content)
+        f.write(rendered)
 
     print(f"✔ 成功创建文章草稿: {dest_path}")
     print(f"  - 体裁: {tmpl_info['name']}")
     print(f"  - 作者: {author}")
+
+    # 5. 原子化登记防重台账
+    if not getattr(args, "no_register", False):
+        reg_res = ledger.register_draft(
+            title=title,
+            file_name=dest_path.name,
+            author=author,
+            date=today_str,
+        )
+        if reg_res.get("registered"):
+            print(f"✔ 已在中央防重台账中登记草稿: 《{title}》 ({dest_path.name})")
+            if reg_res.get("removed_from_pool"):
+                for p_item in reg_res["removed_from_pool"]:
+                    print(f"  - 已从选题池中移出命中条目: 《{p_item}》")
+        elif reg_res.get("snapshot_fallback"):
+            print(f"ℹ️  [快照兜底] {reg_res.get('notice')}")
+        else:
+            print(f"ℹ️  台账登记反馈: {reg_res.get('notice', '')}")
+    else:
+        print("ℹ️  [--no-register] 跳过中央台账登记")
+
     print(f"  - 校验提示: 编写完成后可运行 `python pilot.py check {dest_path}` 自检")
     return 0
+
 
 def cmd_prompt(args):
     """导出或查看配套的 AI 起草/评审提示词"""
@@ -120,12 +160,14 @@ def cmd_prompt(args):
 
     if args.output:
         out_p = Path(args.output).resolve()
+        out_p.parent.mkdir(parents=True, exist_ok=True)
         with open(out_p, "w", encoding="utf-8") as f:
             f.write(text)
         print(f"✔ 提示词已导出至: {out_p}")
     else:
         print(text)
     return 0
+
 
 def cmd_check(args):
     """运行规范检查器"""
@@ -134,10 +176,11 @@ def cmd_check(args):
         print(f"❌ 错误: 目标文件或目录不存在: {target}")
         return 1
 
+    mode = "publish" if getattr(args, "publish", False) or args.mode == "publish" else "draft"
+
     linter = PilotLinter()
     has_failure = False
 
-    files_to_check = []
     if target.is_dir():
         files_to_check = sorted(target.glob("**/*.md"))
     else:
@@ -148,7 +191,7 @@ def cmd_check(args):
         return 0
 
     for file_p in files_to_check:
-        res = linter.lint_file(str(file_p))
+        res = linter.lint_file(str(file_p), mode=mode)
         if args.md:
             print(Reporter.to_markdown(res))
         else:
@@ -158,34 +201,24 @@ def cmd_check(args):
 
     return 1 if has_failure else 0
 
+
 def cmd_sync_vault(args):
     """将模板同步到本地 Obsidian 工作台模板目录"""
-    if not VAULT_TEMPLATE_DIR.exists():
-        print(f"⚠️ Obsidian 模板目录不存在: {VAULT_TEMPLATE_DIR}")
-        print("正在尝试创建目标目录...")
-        try:
-            VAULT_TEMPLATE_DIR.mkdir(parents=True, exist_ok=True)
-        except Exception as e:
-            print(f"❌ 无法创建目录: {e}")
-            return 1
-
-    synced_count = 0
-    for key, info in TEMPLATE_MAP.items():
-        src = TEMPLATES_DIR / info["file"]
-        dst = VAULT_TEMPLATE_DIR / info["vault_name"]
-        if src.exists():
-            shutil.copy2(src, dst)
-            print(f"✔ 已同步模板: {src.name} -> {dst}")
-            synced_count += 1
-        else:
-            print(f"⚠️ 警告: 源模板不存在: {src}")
-
-    # 同时同步 prompts 到工作台的提示词库 (如果存在工作台自治/工作流目录)
-    print(f"\n🎉 模板同步完毕，共同步 {synced_count} 个模板至 Obsidian 工作台。")
+    vault_path_arg = getattr(args, "vault_path", None)
+    result = VaultSyncAdapter.sync(
+        TEMPLATES_DIR,
+        vault_path=vault_path_arg,
+        overwrite=args.overwrite,
+        show_diff=args.diff,
+    )
+    print(VaultSyncAdapter.format_summary(result))
+    if result.get("missing", 0) > 0:
+        return 1
     return 0
 
+
 def cmd_list(args):
-    """列出可用模板与提示词"""
+    """列出可用模板、配套提示词与中央防重台账状态"""
     print("\n=== 可用文章模板 ===")
     for key, info in TEMPLATE_MAP.items():
         print(f"- {key:10s} : {info['name']}")
@@ -197,9 +230,30 @@ def cmd_list(args):
     for key, filename in PROMPT_MAP.items():
         print(f"- {key:10s} : prompts/{filename}")
     print()
+
+    print("=== 中央防重台账状态 ===")
+    vault_path_arg = getattr(args, "vault_path", None)
+    ledger = LedgerAdapter(vault_path=vault_path_arg)
+    if ledger.is_vault_available:
+        print(f"  状态       : 🟢 中央台账正常连接")
+        print(f"  台账路径   : {ledger.ledger_path}")
+    else:
+        print(f"  状态       : 🟡 离线快照兜底模式 (中央台账不可达)")
+        print(f"  快照路径   : {ledger.snapshot_path}")
+
+    try:
+        data = ledger.parse_ledger()
+        written_count = len(data.get("written", []))
+        pool_count = len(data.get("pool", []))
+        print(f"  已写文章数 : {written_count} 篇")
+        print(f"  选题池储备 : {pool_count} 条")
+    except Exception as e:
+        print(f"  数据解析异常: {e}")
+    print()
     return 0
 
-def main():
+
+def main(argv=None):
     parser = argparse.ArgumentParser(
         description="AI 领航团写作脚手架与规范校验工具 (Pilot CLI)",
         formatter_class=argparse.RawDescriptionHelpFormatter
@@ -214,24 +268,32 @@ def main():
     p_new.add_argument("-s", "--slug", default="", help="英文/拼音标识，用作文件名 (默认自动生成)")
     p_new.add_argument("-o", "--output", default="", help="自定义输出文件路径")
     p_new.add_argument("-f", "--force", action="store_true", help="若文件已存在则强制覆盖")
+    p_new.add_argument("--no-register", action="store_true", help="仅生成本地草稿，不登记中央台账")
+    p_new.add_argument("--vault-path", default=None, help="Obsidian 工作台路径或台账路径")
 
     # prompt 子命令
     p_prompt = subparsers.add_parser("prompt", help="导出或查看配套的 AI 起草/评审提示词")
-    p_prompt.add_argument("-t", "--type", default="business", choices=["business", "tool", "audit"], help="提示词类型")
+    p_prompt.add_argument("-t", "--type", default="business", choices=["business", "tool", "audit"], help="提示词类型 (business|tool|audit)")
     p_prompt.add_argument("-o", "--output", default="", help="输出到指定文件 (默认直接打印到控制台)")
 
     # check 子命令
     p_check = subparsers.add_parser("check", help="自检文章是否符合领航团 P0 硬红线与 P1 优化项")
     p_check.add_argument("target", help="待检查的 Markdown 文件或目录路径")
+    p_check.add_argument("--mode", choices=["draft", "publish"], default="draft", help="校验模式 (draft: 草稿阶段放宽字数与槽位, publish: 终审全量门禁)")
+    p_check.add_argument("--publish", action="store_true", help="快捷启用 publish 终审门禁模式 (等价于 --mode publish)")
     p_check.add_argument("--md", action="store_true", help="以 Markdown 格式输出评审报告")
 
     # sync-vault 子命令
     p_sync = subparsers.add_parser("sync-vault", help="同步最新模板至 Obsidian 工作台")
+    p_sync.add_argument("--vault-path", default=None, help="显式指定 Obsidian 工作台路径")
+    p_sync.add_argument("--overwrite", action="store_true", help="强制覆盖已就地修改的目标模板")
+    p_sync.add_argument("--diff", action="store_true", help="显示模板变更 unified diff 差异详情")
 
     # list 子命令
-    p_list = subparsers.add_parser("list", help="查看所有可用模板与提示词列表")
+    p_list = subparsers.add_parser("list", help="查看所有可用模板、提示词与防重台账状态")
+    p_list.add_argument("--vault-path", default=None, help="显式指定 Obsidian 工作台路径")
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if not args.command:
         parser.print_help()
         return 0
@@ -250,6 +312,7 @@ def main():
     else:
         parser.print_help()
         return 0
+
 
 if __name__ == "__main__":
     sys.exit(main() or 0)

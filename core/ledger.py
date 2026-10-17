@@ -165,13 +165,37 @@ class LedgerAdapter:
     def __init__(
         self,
         ledger_path: Optional[Union[str, Path]] = None,
-        snapshot_path: Optional[Union[str, Path]] = None
+        snapshot_path: Optional[Union[str, Path]] = None,
+        vault_path: Optional[Union[str, Path]] = None
     ):
         if ledger_path is not None:
             self.ledger_path: Optional[Path] = Path(ledger_path)
+        elif vault_path is not None:
+            vp = Path(vault_path)
+            if vp.is_file() or vp.suffix == ".md":
+                self.ledger_path = vp
+            elif (vp / "工作台" / "AI领航团文章" / "已写清单.md").exists():
+                self.ledger_path = vp / "工作台" / "AI领航团文章" / "已写清单.md"
+            elif (vp / "已写清单.md").exists():
+                self.ledger_path = vp / "已写清单.md"
+            else:
+                self.ledger_path = vp / "工作台" / "AI领航团文章" / "已写清单.md"
         else:
             env_path = os.environ.get("AI_PILOT_LEDGER_PATH")
-            self.ledger_path = Path(env_path) if env_path else DEFAULT_LEDGER_PATH
+            if env_path:
+                self.ledger_path = Path(env_path)
+            else:
+                env_vault = os.environ.get("PILOT_VAULT_PATH") or os.environ.get("AI_PILOT_VAULT_PATH")
+                if env_vault:
+                    vp = Path(env_vault)
+                    if (vp / "工作台" / "AI领航团文章" / "已写清单.md").exists():
+                        self.ledger_path = vp / "工作台" / "AI领航团文章" / "已写清单.md"
+                    elif (vp / "已写清单.md").exists():
+                        self.ledger_path = vp / "已写清单.md"
+                    else:
+                        self.ledger_path = vp / "工作台" / "AI领航团文章" / "已写清单.md"
+                else:
+                    self.ledger_path = DEFAULT_LEDGER_PATH
 
         if snapshot_path is not None:
             self.snapshot_path: Optional[Path] = Path(snapshot_path)

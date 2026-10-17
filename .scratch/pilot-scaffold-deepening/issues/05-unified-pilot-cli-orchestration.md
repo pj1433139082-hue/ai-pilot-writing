@@ -5,10 +5,10 @@ Refactor the top-level CLI (`pilot.py`) to wire together `TemplateRenderer`, `Pi
 
 **Blocked by:** 01: Canonical Rule Engine Consolidation & Backward Compatibility Seam, 02: Declarative Template Slot Engine & Template Standardization, 03: Central Ledger Seam & Atomic Duplicate Prevention, 04: Drift-Resistant Vault Synchronizer
 
-**Status:** ready-for-agent
+**Status:** completed
 
-- [ ] Connect `pilot new` to `LedgerAdapter.search_duplicate` and `register_draft` (honoring `--no-register`).
-- [ ] Connect `pilot check` to `PilotLinter.lint_file` supporting `--mode draft|publish` and formatted console/markdown reports.
-- [ ] Connect `pilot sync-vault` to `VaultSyncAdapter.sync` with `--vault-path`, `--overwrite`, and `--diff`.
-- [ ] Retain zero third-party dependencies (pure standard library).
-- [ ] Add end-to-end integration test suite `tests/test_cli.py` testing all commands and options.
+- [x] Connect `pilot new` to `LedgerAdapter.search_duplicate` and `register_draft` (honoring `--no-register`).
+- [x] Connect `pilot check` to `PilotLinter.lint_file` supporting `--mode draft|publish` and formatted console/markdown reports.
+- [x] Connect `pilot sync-vault` to `VaultSyncAdapter.sync` with `--vault-path`, `--overwrite`, and `--diff`.
+- [x] Retain zero third-party dependencies (pure standard library).
+- [x] Add end-to-end integration test suite `tests/test_cli.py` testing all commands and options.
