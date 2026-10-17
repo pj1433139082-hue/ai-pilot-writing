@@ -1,0 +1,56 @@
+name: "🐛 Bug Report / 缺陷反馈"
+description: 报告脚手架、校验规则、模板水化或同步器中的异常与错误。
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈问题！提交前请确认本地已更新至 `main` 分支最新提交。
+  - type: input
+    id: version
+    attributes:
+      label: 运行环境
+      description: 你的操作系统与 Python 解释器版本
+      placeholder: 例如：Windows 11, Python 3.11.8
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: 涉及模块
+      description: 发生问题的子系统或命令
+      options:
+        - "CLI 顶层命令 (pilot new / list / prompt)"
+        - "规则校验引擎 (pilot check / core.linter)"
+        - "模板渲染与插槽水化 (core.renderer)"
+        - "中央防重台账 (core.ledger)"
+        - "Obsidian 工作台同步 (pilot sync-vault / core.vault_sync)"
+        - "其他"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤与命令
+      description: 请给出触发问题的具体命令或调用参数
+      placeholder: |
+        1. 运行 `python pilot.py new ...`
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期行为 vs 实际输出
+      description: 发生了什么错误？如果有报错回溯（Traceback）请粘贴在此。
+      render: shell
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 安全与合规自查
+      options:
+        - label: 我确认上述日志与报错信息中**绝无**任何公司内部机密、API Token 或敏感凭据
+          required: true

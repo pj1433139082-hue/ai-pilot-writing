@@ -1,0 +1,39 @@
+name: Repository checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # context name is "checks"
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 运行全量单元测试与集成测试
+        run: python -m unittest discover tests -v
+
+      - name: CLI 常用命令冒烟测试
+        run: |
+          python pilot.py --help
+          python pilot.py list
+          python pilot.py prompt -t business
+          python pilot.py prompt -t tool
+          python pilot.py prompt -t audit
+
+      - name: 记录解释器与环境版本
+        run: python -VV

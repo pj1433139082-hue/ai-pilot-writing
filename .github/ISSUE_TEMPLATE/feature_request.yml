@@ -1,0 +1,35 @@
+name: "✨ Feature Request / 功能建议"
+description: 为领航团写作脚手架提出新的文章体裁模板、规则项或提效功能建议。
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        欢迎提出新的体裁模板或校验建议！领航团文章规范以一线实操落地和去除 AI 浮夸为核心导向。
+  - type: dropdown
+    id: category
+    attributes:
+      label: 建议类别
+      options:
+        - "新增文章体裁模板 (新 templates/)"
+        - "规则引擎与门禁优化 (P0 硬红线 / P1 降噪优化)"
+        - "配套 AI 提示词扩展 (新 prompts/)"
+        - "CLI 功能增强与工作流优化"
+        - "其他"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: 业务痛点或使用场景
+      description: 遇到了什么阻碍？或者现有的写作流程在哪些环节不够顺畅？
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: 期望的解决方案
+      description: 详细描述你期望的新特性、CLI 命令交互或模板内容组织形态。
+    validations:
+      required: true
