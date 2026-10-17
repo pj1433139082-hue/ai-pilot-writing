@@ -25,7 +25,7 @@
 ## 🚀 三步快速上手指南
 
 ### 第一步：一键初始化文章草稿
-在终端进入本项目根目录 `E:\beikong-code\ai-pilot-writing`，运行：
+先 `git clone` 本仓库，在终端进入仓库根目录（即 `pilot.py` 所在目录，后续命令都在此目录执行），运行：
 
 ```bash
 # 场景 A：起草「业务实战与智能体落地」文章（默认）
@@ -51,7 +51,12 @@ python pilot.py prompt -t tool
 # 查看并复制文章终审把关人 (Editor in Chief) 提示词
 python pilot.py prompt -t audit
 ```
-提示词已完整注入了领航团全部规范与排版要求，同事只需把业务痛点、系统截图和踩坑细节告诉 AI，即可自动输出符合骨架的初稿。
+
+复制全部输出（含标题行）粘贴为大模型的 System Prompt 即可。提示词已按「单轮一次成稿」设计：
+
+- **不会反问你**。贴一句话想法就能出完整初稿，不需要再回答追问；它会把缺失的素材写成 `【待确认: 具体缺什么】` 占位，你再逐个回填。
+- **不会长时间空转**。提示词里没有「先问三个问题」「套用某模板文件」「写完自检表格数量」这类会导致模型反复思考的环节，直接出正文。
+- **不依赖任何外部文件**。七章骨架已内联在提示词正文里，网页版大模型、DSH、Cursor、内部智能体都可用，不需要另外上传模板。
 
 ---
 
@@ -59,27 +64,63 @@ python pilot.py prompt -t audit
 初稿完成后，在本地运行检查器：
 
 ```bash
+# 文件名按 new 当天的日期生成；请把下面的文件名换成上一步实际生成的那份
 # 场景 A：起草阶段自检（宽松模式，字数与槽位仅告警，便于排查格式）
-python pilot.py check drafts/2026-10-16-water-agent.md
+python pilot.py check drafts/2026-10-17-water-agent.md
 
 # 场景 B：终审发布阶段门禁（严格模式，未填槽位、字数不达标、隐私路径硬阻断）
-python pilot.py check drafts/2026-10-16-water-agent.md --publish
+python pilot.py check drafts/2026-10-17-water-agent.md --publish
 
 # 以 Markdown 格式输出详细评审意见（可直接发给作者参考）
-python pilot.py check drafts/2026-10-16-water-agent.md --md
+python pilot.py check drafts/2026-10-17-water-agent.md --md
 ```
 
 #### 检查输出示例：
+
+刚用 `new` 生成的空壳草稿必然带 P1（槽位未填、字数未到、还没有来源链接），这才是真实输出：
+
 ```text
 === AI 领航团文章规范检查报告 ===
-目标文件: E:\beikong-code\ai-pilot-writing\drafts\2026-10-16-water-agent.md
+目标文件: drafts\2026-10-17-water-agent.md
 
-✔ 完美通过！未发现任何 P0 阻断项或 P1 优化项。
+[P1 优化项] 发现 6 处文风与表达优化建议 (建议打磨):
+  1. [P1_UNRESOLVED_SLOTS] 发现 3 处未填写的模板槽位: business_scene、所在项目/大区/部门、业务痛点
+     💡 优化建议: 草稿撰写中，可在定稿前逐步补齐占位插槽
+  2. [P1_CHAR_COUNT] 字数 2701 不在 1500–2500 (草稿阶段建议 1500-2500 字)
+  3. [P1_AI_SLOP_WORD] 第 22 行出现浮夸/AI套话「领航」
+  4. [P1_SRC_SEC_MISSING] 无正式来源小节
+  5. [P1_NO_URL] 全文无外部链接
+  6. [P1_FETCH_TIME_MISSING] 来源未标抓取/读取时间（B4#5）
+
 --------------------------------------------------
-结论: PASS (P0=0, P1=0) - 符合领航团硬门禁要求
+结论: PASS (P0=0, P1=6) - 符合领航团硬门禁要求
 ```
 
+P0 是硬阻断，草稿阶段也必须清零；P1 是打磨建议，逐条清干净即可定稿。
+
 若存在违规（如标题使用了「浅谈」或缺少避坑大表），终端会精准定位行号并给出具体的修改建议（例如：`💡 修复建议: 修改标题，禁止使用「浅谈」，改用具体名词短语`）。
+
+#### 对整个目录批量检查
+
+`check` 的 target 可以直接给目录，会递归检查其中所有 `.md`：
+
+```bash
+# 逐份打印完整报告（文件多时输出很长）
+python pilot.py check drafts
+
+# 只看每份的结论 + 汇总（推荐用于几十份以上的目录）
+python pilot.py check drafts --quiet
+```
+
+`--quiet` 每个文件只打印一行，例如：
+
+```text
+PASS  P0=0 P1=6  drafts\2026-10-17-water-agent.md
+
+汇总: 共检查 1 个文件，通过 1 个，未通过 0 个。
+```
+
+**注意检查范围**：`check` 会递归检查目录下所有 `.md`，单个文件约 10–15 ms。指向文章目录即可（例如 Obsidian 里 `工作台/AI领航团文章`），**不要直接对整个笔记库根目录跑**——几万个文件会跑上十几分钟。目录枚举不跟随符号链接与 Windows 目录联结（junction），避免联结成环时文件数被放大。
 
 ---
 
@@ -91,14 +132,15 @@ python pilot.py check drafts/2026-10-16-water-agent.md --md
 | `python pilot.py sync-vault` | 一键将最新模板同步至 Obsidian 工作台（具备防冲保护与哈希防漂移） |
 | `python pilot.py sync-vault --diff` | 预览本地工作台模板与脚手架源模板的逐行差异 (unified diff) |
 | `python pilot.py sync-vault --overwrite` | 强制使用源模板覆盖工作台已有修改 |
-| `python -m unittest discover tests` | 运行全量 89 项单元测试与 CLI 端到端集成测试套件 |
+| `python pilot.py check <目录> --quiet` | 批量检查整个目录时只输出每个文件的 PASS/FAIL 与汇总，避免刷屏 |
+| `python -m unittest discover tests` | 运行全量 91 项单元测试与 CLI 端到端集成测试套件 |
 
 ---
 
 ## 📁 目录结构说明
 
 ```text
-E:\beikong-code\ai-pilot-writing\
+ai-pilot-writing/
 ├── pilot.py                 # 顶层 CLI 统一入口 (new/prompt/check/sync-vault/list)
 ├── core/
 │   ├── linter.py            # 权威规则引擎 (draft/publish 双模、P0/P1 规范判定)
@@ -116,7 +158,7 @@ E:\beikong-code\ai-pilot-writing\
 │   ├── draft-tool-guide.md         # 工具避坑型 AI 起草 System Prompt
 │   └── audit-pilot-article.md      # 终审评估与打回把关 System Prompt
 ├── drafts/                  # 日常撰写草稿归档目录
-├── tests/                   # 自动化测试套件 (89 tests, 100% PASS)
+├── tests/                   # 自动化测试套件 (91 tests, 100% PASS)
 │   ├── test_linter.py       # 规则引擎单元测试
 │   ├── test_renderer.py     # 模板引擎与插槽水化测试
 │   ├── test_ledger.py       # 台账防重与选题核销测试

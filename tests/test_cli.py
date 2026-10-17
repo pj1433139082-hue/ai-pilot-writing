@@ -9,6 +9,7 @@ import os
 import sys
 import time
 import shutil
+import itertools
 import tempfile
 import unittest
 import subprocess
@@ -300,6 +301,55 @@ class TestCliCheck(unittest.TestCase):
         self.assertIn("draft1.md", res.stdout)
         self.assertIn("draft2.md", res.stdout)
 
+    def test_check_directory_quiet_mode_prints_summary_only(self):
+        """--quiet 目录检查：每个文件只输出一行结论 + 一行汇总，不再刷完整报告"""
+        sub_dir = self.work_dir / "articles_quiet"
+        sub_dir.mkdir(parents=True, exist_ok=True)
+
+        run_cli("new", "-t", "business", "-T", "业务实战稿件一", "-o", str(sub_dir / "draft1.md"), "--no-register")
+        run_cli("new", "-t", "tool", "-T", "工具避坑稿件二", "-o", str(sub_dir / "draft2.md"), "--no-register")
+
+        res = run_cli("check", str(sub_dir), "--quiet")
+        self.assertEqual(res.returncode, 0)
+
+        lines = [ln for ln in res.stdout.strip().splitlines() if ln.strip()]
+        self.assertEqual(
+            len(lines), 3,
+            f"--quiet 应只输出 2 行结论 + 1 行汇总，实际输出:\n{res.stdout}"
+        )
+        self.assertTrue(lines[0].startswith("PASS  P0=0"), f"实际首行: {lines[0]}")
+        self.assertTrue(lines[1].startswith("PASS  P0=0"), f"实际第二行: {lines[1]}")
+        self.assertIn("汇总: 共检查 2 个文件，通过 2 个，未通过 0 个。", lines[2])
+        self.assertNotIn("=== AI 领航团文章规范检查报告 ===", res.stdout)
+
+    @unittest.skipUnless(sys.platform == "win32", "目录联结仅在 Windows 上存在")
+    def test_check_directory_skips_junction_loop(self):
+        """目录联结指回上层时不能被跟随，否则文件数会被放大数十倍"""
+        sys.path.insert(0, str(BASE_DIR))
+        from pilot import _iter_md_files
+
+        root = self.work_dir / "junc_root"
+        root.mkdir(parents=True, exist_ok=True)
+        (root / "art-1.md").write_text("# 只有一篇\n\n正文\n", encoding="utf-8")
+
+        link = root / "loop"
+        made = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(link), str(root)],
+            capture_output=True, text=True, encoding="utf-8", errors="replace"
+        )
+        if made.returncode != 0:
+            self.skipTest(f"当前环境无法创建目录联结: {made.stdout}{made.stderr}")
+        try:
+            # 用 islice 封顶：即使防护失效也不会把整个测试拖成十几分钟
+            found = list(itertools.islice(_iter_md_files(root), 0, 50))
+        finally:
+            subprocess.run(["cmd", "/c", "rd", str(link)], capture_output=True)
+
+        self.assertEqual(
+            [p.name for p in found], ["art-1.md"],
+            f"应只枚举到 art-1.md，实际枚举到 {len(found)} 个: {[str(p) for p in found[:5]]}"
+        )
+
     def test_check_markdown_output_format(self):
         """测试 --md 导出 Markdown 格式审查报告"""
         draft_p = self._create_scaffolded_draft()
@@ -431,6 +481,37 @@ class TestCliPrompt(unittest.TestCase):
         self.assertTrue(out_prompt.exists())
         self.assertIn("AI 领航团文章起草系统提示词（业务实战型）", out_prompt.read_text(encoding="utf-8"))
         self.assertIn("✔ 提示词已导出至:", res.stdout)
+
+    def test_draft_prompts_are_single_round_and_self_contained(self):
+        """起草提示词必须单轮自包含：不反问、不引用仓库模板文件、不要求自检
+
+        历史回归：旧提示词要求「先用 3 个关键问题问清」「套用 templates/xxx.md」
+        「检查表格数量是否 ≥ 2」，把模板文件路径当成可读附件贴给网页版大模型后，
+        模型会在推理阶段反复猜模板内容并自我返工，表现为长时间「一直在思考」不出稿。
+        """
+        cases = {
+            "business": "draft-business-agent.md",
+            "tool": "draft-tool-guide.md",
+        }
+        for prompt_type, filename in cases.items():
+            with self.subTest(prompt_type=prompt_type):
+                text = (PROMPTS_DIR / filename).read_text(encoding="utf-8")
+                # 有输出契约，明确单轮直出
+                self.assertIn("输出契约", text)
+                self.assertIn("禁止反问", text)
+                self.assertIn("禁止输出思考过程", text)
+                # 不再把仓库内模板文件当成输入
+                self.assertNotIn("templates/", text)
+                self.assertNotIn("提问摸底", text)
+                # 骨架已内联，章节硬约束仍在
+                self.assertIn("结构与骨架硬约束", text)
+                self.assertIn("> [!abstract] 一句话定位", text)
+                self.assertIn("> [!info] 生产说明", text)
+
+                # 通过 CLI 导出的内容与文件一致，保证同事复制到的是同一份
+                res = run_cli("prompt", "-t", prompt_type)
+                self.assertEqual(res.returncode, 0)
+                self.assertIn("输出契约", res.stdout)
 
     def test_prompt_invalid_type(self):
         """测试未知提示词类型报错退出"""
