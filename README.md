@@ -1,5 +1,9 @@
 # AI 领航团写作脚手架与规范校验工具 (Pilot CLI)
 
+[![Repository checks](https://github.com/pj1433139082-hue/ai-pilot-writing/actions/workflows/checks.yml/badge.svg)](https://github.com/pj1433139082-hue/ai-pilot-writing/actions/workflows/checks.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-green.svg)](https://www.python.org/)
+
 > **为北控水务 AI 领航团量身定制的标准化写作工具集**  
 > 抽取领航团标杆实战稿件（如《利用DEAP构建大区风险问答智能体》、《7月议题知识沉淀-AI工具选用指引》）的核心骨架，内置严格的评审红线规则，帮助一线同事 10 分钟快速起草出符合发表标准的高质量业务实操文章。
 
