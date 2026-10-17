@@ -55,8 +55,11 @@ python pilot.py prompt -t audit
 初稿完成后，在本地运行检查器：
 
 ```bash
-# 对指定草稿进行规范检查
+# 场景 A：起草阶段自检（宽松模式，字数与槽位仅告警，便于排查格式）
 python pilot.py check drafts/2026-10-16-water-agent.md
+
+# 场景 B：终审发布阶段门禁（严格模式，未填槽位、字数不达标、隐私路径硬阻断）
+python pilot.py check drafts/2026-10-16-water-agent.md --publish
 
 # 以 Markdown 格式输出详细评审意见（可直接发给作者参考）
 python pilot.py check drafts/2026-10-16-water-agent.md --md
@@ -80,9 +83,11 @@ python pilot.py check drafts/2026-10-16-water-agent.md --md
 
 | 命令 | 说明 |
 |---|---|
-| `python pilot.py list` | 查看当前已收录的所有文章模板与 AI 提示词清单 |
-| `python pilot.py sync-vault` | 一键将最新模板同步发布到 Obsidian 工作台的 `模板/` 目录 |
-| `python tests/test_pilot.py` | 运行脚手架自检回归测试套件 |
+| `python pilot.py list` | 查看当前已收录的所有文章模板、AI 提示词清单与中央防重台账连接状态 |
+| `python pilot.py sync-vault` | 一键将最新模板同步至 Obsidian 工作台（具备防冲保护与哈希防漂移） |
+| `python pilot.py sync-vault --diff` | 预览本地工作台模板与脚手架源模板的逐行差异 (unified diff) |
+| `python pilot.py sync-vault --overwrite` | 强制使用源模板覆盖工作台已有修改 |
+| `python -m unittest discover tests` | 运行全量 89 项单元测试与 CLI 端到端集成测试套件 |
 
 ---
 
@@ -92,8 +97,13 @@ python pilot.py check drafts/2026-10-16-water-agent.md --md
 E:\beikong-code\ai-pilot-writing\
 ├── pilot.py                 # 顶层 CLI 统一入口 (new/prompt/check/sync-vault/list)
 ├── core/
-│   ├── linter.py            # 零依赖核心规则引擎 (P0/P1 两级判定逻辑)
+│   ├── linter.py            # 权威规则引擎 (draft/publish 双模、P0/P1 规范判定)
+│   ├── renderer.py          # 声明式模板插槽水化与未填槽位静态扫描引擎
+│   ├── ledger.py            # 中央台账防重适配器 (相似度模糊去重、原子入库、快照兜底)
+│   ├── vault_sync.py        # 防漂移工作台同步器 (层叠路径探测、防冲保护、diff预览)
 │   └── reporter.py          # 控制台彩色与 Markdown 评审报告输出器
+├── data/
+│   └── ledger-snapshot.json # 离线快照备份（台账无法直连时保底查重）
 ├── templates/
 │   ├── template-business-agent.md  # 业务实战型标准模板
 │   └── template-tool-guide.md      # 工具选型与避坑型标准模板
@@ -102,8 +112,12 @@ E:\beikong-code\ai-pilot-writing\
 │   ├── draft-tool-guide.md         # 工具避坑型 AI 起草 System Prompt
 │   └── audit-pilot-article.md      # 终审评估与打回把关 System Prompt
 ├── drafts/                  # 日常撰写草稿归档目录
-├── tests/
-│   └── test_pilot.py        # 纯标准库自动化回归测试
+├── tests/                   # 自动化测试套件 (89 tests, 100% PASS)
+│   ├── test_linter.py       # 规则引擎单元测试
+│   ├── test_renderer.py     # 模板引擎与插槽水化测试
+│   ├── test_ledger.py       # 台账防重与选题核销测试
+│   ├── test_vault_sync.py   # 工作台同步与冲突保护测试
+│   └── test_cli.py          # CLI 端到端完整闭环测试
 ├── CONTEXT.md               # 项目领域词汇表与术语规范
 └── README.md                # 快速上手指南（本文档）
 ```
