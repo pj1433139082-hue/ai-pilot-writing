@@ -5,10 +5,10 @@ An adaptive synchronization module (`core/vault_sync.py`) supporting 4-tier casc
 
 **Blocked by:** 02: Declarative Template Slot Engine & Template Standardization
 
-**Status:** ready-for-agent
+**Status:** completed
 
-- [ ] Implement 4-tier vault directory resolution with local `.pilot.config.json` persistence.
-- [ ] Implement SHA256 content comparison between source templates and destination vault files.
-- [ ] Prevent overwriting destination files when destination is newer and content differs, unless `--overwrite` is specified.
-- [ ] Implement diff summary reporting to show exact template modifications before applying changes.
-- [ ] Add unit test suite `tests/test_vault_sync.py` covering new copy, match skip, conflict abort, and overwrite paths.
+- [x] Implement 4-tier vault directory resolution with local `.pilot.config.json` persistence.
+- [x] Implement SHA256 content comparison between source templates and destination vault files.
+- [x] Prevent overwriting destination files when destination is newer and content differs, unless `--overwrite` is specified.
+- [x] Implement diff summary reporting to show exact template modifications before applying changes.
+- [x] Add unit test suite `tests/test_vault_sync.py` covering new copy, match skip, conflict abort, and overwrite paths.
