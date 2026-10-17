@@ -1,0 +1,53 @@
+{
+  "business_system_state": "not_queried",
+  "can_advance": false,
+  "checks": [
+    {
+      "errors": [],
+      "id": "project-scope",
+      "kind": "json-fields",
+      "passed": true
+    },
+    {
+      "errors": [],
+      "id": "project-plan",
+      "kind": "file-content",
+      "passed": true
+    },
+    {
+      "errors": [],
+      "id": "plan-acceptance",
+      "kind": "decision",
+      "passed": true
+    }
+  ],
+  "completed_locally": true,
+  "documents": [
+    "AGENTS.md",
+    "docs/00-入口层/00-协作总览.md",
+    "agent_workflow/packs/project-planning/SOP.md",
+    "docs/00-入口层/02-交互与续接.md"
+  ],
+  "evidence_valid": true,
+  "framework_version": "0.1.0",
+  "next_stage": null,
+  "pending_decisions": [],
+  "project": {
+    "id": "ai-pilot-writing"
+  },
+  "schema_version": "1.0",
+  "sources": {
+    "business-packs/project-planning": "0d21da205d834831c5bb2a1d1c24818d2d599172d0a6ea3a1f953eee19683f7c",
+    "project.json": "31b59a6ac2fb49205abc2b5e20f0e2babbc54f49b0c8029e867a56e87b0796f4",
+    "tasks/kickoff/payload.json": "3358fcc342cccea68dba6b9047d25ad334b1f0d3b3caa268df2bc79c75b16ca2",
+    "tasks/kickoff/plan.md": "769f02ffbf129b2e5cc3c42c02916e91dca2d4ae5529319e82329b8b797982cd",
+    "tasks/kickoff/task.json": "f8cecbcbba34e59cb9d832d620fdc95d8bba13a394f063721c08e3edb2fadf20"
+  },
+  "task": {
+    "id": "kickoff",
+    "mode": "assisted",
+    "next_action": "Run context/status and follow the current business stage.",
+    "stage": "ready",
+    "workflow": "project-planning"
+  }
+}

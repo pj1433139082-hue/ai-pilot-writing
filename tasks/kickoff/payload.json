@@ -1,0 +1,8 @@
+{
+  "project_name": "AI领航团写作流程优化",
+  "goal": "优化「AI 领航团」写作流程与技能（用户原话：ai领航团的写作流程和技能你看看怎么优化），项目落在 E 盘。本轮交办含五项写作线欠账。",
+  "users": "潘杰（本人，水务 SED 工艺数据 / 运营提效方向），作者；文章最终读者是领航团群 198 人的内部同事。",
+  "in_scope": "1) 技能 C:\\Users\\14331\\.workbuddy\\skills\\ai-pilot-daily-article\\（SKILL.md 147 行 + references 6 篇 + scripts 3 个）。\n2) 技能 C:\\Users\\14331\\.workbuddy\\skills\\daily-signal-distill\\SKILL.md。\n3) vault 写作线权威源：D:\\obsidian_work\\cangku\\paper_work\\工作台\\AI领航团文章\\00-格式规范.md 与 已写清单.md。\n4) 欠账一：文章草稿积压进用户视野——执行器 prompt 只点名 digest 第四节 3 个子节，「文章草稿积压」子节无消费者；21:15 只全文推 summary.txt。\n5) 欠账二：hermes\\scripts\\eod-push-dingtalk.py:258 main() 返回第二次推送(detail.txt)的返回码，造成首条已送达却记 failed；push() 不捕获 stdout，失败证据全丢日志。\n6) 欠账三：两篇 draft 待核事实——2026-10-02「一折到五折」缺出处；2026-09-29「沙箱逃逸」/「对齐失效」两种说法对不上。核清或转 dropped。\n7) 欠账四：提案 9「17:30 AAR 写盘从 LLM 拿走改 no_agent 后置脚本」（上一会话提出、用户本轮纳入）。\n8) 欠账五：资料库/AI工具/ 索引失真清单逐个修正。\n用户已选：项目内直接改真实文件（assisted 档位连续处理已交办工作，不逐条请示）。",
+  "out_of_scope": "1) 不发布任何文章到钉钉——发布与群推仍是两次单独授权，本轮无授权。\n2) 不向群里发消息、不建会、不动真实企业数据。\n3) 不 push 任何仓库、不部署。\n4) 不改 Hermes 定时作业的时间表与作业集合（除非单独立项并获授权）。\n5) 不新建第二个选题池、不新建第二份格式规范或第二份 P0 判据（单源铁律）。\n6) 不动上一会话在他仓库的未提交改动、不动分支、不做顺手重构。",
+  "success_criteria": "1) 写作流程经实测诊断后给出可验收的优化清单并逐项落地，每项改动有验证命令与实测输出。\n2) P0 判据仍单源（C:\\Users\\14331\\AppData\\Local\\hermes\\scripts\\article_lint.py），不出现第二份实现。\n3) 两篇 draft 待核事实有明确结论（核清升 ready / 转 dropped 并写原因），不留悬空。\n4) eod-push-dingtalk.py 退出码语义修掉，用一次真实或本地可复现运行证明。\n5) 文章草稿积压有确定消费者，实测推送内容含该行。\n6) 所有对真实文件（skills、vault、hermes scripts）的改动记入项目 progress，可追溯到文件与行。"
+}

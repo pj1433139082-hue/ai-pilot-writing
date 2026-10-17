@@ -1,0 +1,17 @@
+{
+  "decisions": {
+    "plan-acceptance": {
+      "answer": "accept",
+      "by": "user",
+      "evidence_digest": "bffd10eef4489d40988ff101636a5ed5b61d6d311adcbaabde2300eb77cde1a5"
+    }
+  },
+  "id": "kickoff",
+  "mode": "assisted",
+  "next_action": "Run context/status and follow the current business stage.",
+  "pack_digest": "0d21da205d834831c5bb2a1d1c24818d2d599172d0a6ea3a1f953eee19683f7c",
+  "project_id": "ai-pilot-writing",
+  "schema_version": "1.0",
+  "stage": "ready",
+  "workflow": "project-planning"
+}
