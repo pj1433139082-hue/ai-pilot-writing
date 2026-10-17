@@ -133,7 +133,7 @@ PASS  P0=0 P1=6  drafts\2026-10-17-water-agent.md
 | `python pilot.py sync-vault --diff` | 预览本地工作台模板与脚手架源模板的逐行差异 (unified diff) |
 | `python pilot.py sync-vault --overwrite` | 强制使用源模板覆盖工作台已有修改 |
 | `python pilot.py check <目录> --quiet` | 批量检查整个目录时只输出每个文件的 PASS/FAIL 与汇总，避免刷屏 |
-| `python -m unittest discover tests` | 运行全量 91 项单元测试与 CLI 端到端集成测试套件 |
+| `python -m unittest discover tests` | 运行全量 92 项单元测试与 CLI 端到端集成测试套件 |
 
 ---
 
@@ -158,7 +158,7 @@ ai-pilot-writing/
 │   ├── draft-tool-guide.md         # 工具避坑型 AI 起草 System Prompt
 │   └── audit-pilot-article.md      # 终审评估与打回把关 System Prompt
 ├── drafts/                  # 日常撰写草稿归档目录
-├── tests/                   # 自动化测试套件 (91 tests, 100% PASS)
+├── tests/                   # 自动化测试套件 (92 tests, 100% PASS)
 │   ├── test_linter.py       # 规则引擎单元测试
 │   ├── test_renderer.py     # 模板引擎与插槽水化测试
 │   ├── test_ledger.py       # 台账防重与选题核销测试
