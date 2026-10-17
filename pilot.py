@@ -20,6 +20,7 @@ if str(BASE_DIR) not in sys.path:
 
 from core.linter import PilotLinter
 from core.reporter import Reporter
+from core.renderer import TemplateRenderer
 
 TEMPLATES_DIR = BASE_DIR / "templates"
 PROMPTS_DIR = BASE_DIR / "prompts"
@@ -79,15 +80,18 @@ def cmd_new(args):
     with open(tmpl_file, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # 替换常见占位符
-    content = content.replace("{{date}}", today_str)
-    content = content.replace("{{slug}}", slug)
-    content = content.replace("{{author_name}}", author)
-    content = content.replace("{{topic}}", t_type)
-    content = content.replace("{{alias_1}}", f"{today_str}-{slug}")
-    content = content.replace("{{alias_2}}", title)
-    content = content.replace("{{文章标题：名词短语，如「污水厂进水冲击处置AI顾问落地实录」，禁止使用「浅谈/初探/关于」}}", title)
-    content = content.replace("{{文章标题：名词短语，如「大模型与办公提效工具选型指引与避坑实录」，禁止使用「浅谈/初探/关于」}}", title)
+    # 使用声明式模板插槽渲染器水化元数据
+    context = {
+        "date": today_str,
+        "slug": slug,
+        "author": author,
+        "author_name": author,
+        "topic": t_type,
+        "title": title,
+        "alias_1": f"{today_str}-{slug}",
+        "alias_2": title,
+    }
+    content = TemplateRenderer.render(content, context)
 
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     with open(dest_path, "w", encoding="utf-8") as f:

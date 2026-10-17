@@ -16,6 +16,7 @@ if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
 from core.linter import PilotLinter, Issue
+from core.renderer import TemplateRenderer
 from pilot import TEMPLATE_MAP, TEMPLATES_DIR
 
 class TestPilotLinterRules(unittest.TestCase):
@@ -149,10 +150,13 @@ class TestTemplatesValidation(unittest.TestCase):
             content = f.read()
 
         # 模拟生成后的基本填充测试（消除模板占位符）
-        filled = content.replace("{{文章标题：名词短语，如「污水厂进水冲击处置AI顾问落地实录」，禁止使用「浅谈/初探/关于」}}", "污水厂进水冲击处置AI顾问落地实录")
-        filled = filled.replace("{{date}}", "2026-10-17")
-        filled = filled.replace("{{slug}}", "water-agent")
-        filled = filled.replace("{{author_name}}", "李工")
+        filled = TemplateRenderer.render(content, {
+            "title": "污水厂进水冲击处置AI顾问落地实录",
+            "date": "2026-10-17",
+            "slug": "water-agent",
+            "author": "李工",
+            "topic": "business",
+        })
 
         res = self.linter.lint_text(filled)
         # 业务模板基础结构必须 P0 零错误
@@ -164,10 +168,13 @@ class TestTemplatesValidation(unittest.TestCase):
         with open(tmpl_file, "r", encoding="utf-8") as f:
             content = f.read()
 
-        filled = content.replace("{{文章标题：名词短语，如「大模型与办公提效工具选型指引与避坑实录」，禁止使用「浅谈/初探/关于」}}", "大模型与办公提效工具选型指引与避坑实录")
-        filled = filled.replace("{{date}}", "2026-10-17")
-        filled = filled.replace("{{slug}}", "tool-guide")
-        filled = filled.replace("{{author_name}}", "王工")
+        filled = TemplateRenderer.render(content, {
+            "title": "大模型与办公提效工具选型指引与避坑实录",
+            "date": "2026-10-17",
+            "slug": "tool-guide",
+            "author": "王工",
+            "topic": "tool",
+        })
 
         res = self.linter.lint_text(filled)
         # 工具模板基础结构必须 P0 零错误

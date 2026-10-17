@@ -5,9 +5,9 @@ A declarative template rendering module (`core/renderer.py`) that scans `{{slot_
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** completed
 
-- [ ] Implement `TemplateRenderer.render(template_content, context)` to hydrate metadata keys (`date`, `slug`, `author`, `topic`, `title`, `alias_1`, `alias_2`).
-- [ ] Implement `TemplateRenderer.find_unresolved_slots(content)` to detect any lingering `{{...}}` tags for linter inspection.
-- [ ] Refactor `templates/template-business-agent.md` and `templates/template-tool-guide.md` with standard slot names.
-- [ ] Add unit test suite `tests/test_renderer.py` asserting clean rendering, multi-slot hydration, and unresolved slot reporting.
+- [x] Implement `TemplateRenderer.render(template_content, context)` to hydrate metadata keys (`date`, `slug`, `author`, `topic`, `title`, `alias_1`, `alias_2`).
+- [x] Implement `TemplateRenderer.find_unresolved_slots(content)` to detect any lingering `{{...}}` tags for linter inspection.
+- [x] Refactor `templates/template-business-agent.md` and `templates/template-tool-guide.md` with standard slot names.
+- [x] Add unit test suite `tests/test_renderer.py` asserting clean rendering, multi-slot hydration, and unresolved slot reporting.
