@@ -7,6 +7,7 @@ from .linter import PilotLinter, Issue, LintResult
 from .reporter import Reporter
 from .renderer import TemplateRenderer
 from .ledger import LedgerAdapter, cjk_bigrams, cjk_bigram_similarity
+from .vault_sync import VaultSyncAdapter, SyncStatus, diff_files
 
 __all__ = [
     "PilotLinter",
@@ -17,4 +18,7 @@ __all__ = [
     "LedgerAdapter",
     "cjk_bigrams",
     "cjk_bigram_similarity",
+    "VaultSyncAdapter",
+    "SyncStatus",
+    "diff_files",
 ]
